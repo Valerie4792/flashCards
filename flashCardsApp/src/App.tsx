@@ -1,35 +1,116 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
-
+import React, { useState, useEffect, useRef, FormEvent } from "react";
+import {
+  Box,
+  Select,
+  Input,
+  Button,
+  Flex,
+  ChakraProvider,
+} from "@chakra-ui/react";
+import FlashCardList from "./Components/FlashCardList";
+import axios from "axios";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [flashCards, setFlashCards] = useState([]);
+  const [categories, setCategories] = useState([]);
+
+  const categoryEl = useRef<HTMLSelectElement | null>(null);
+  const amountEl = useRef<HTMLInputElement | null>(null);
+
+  function decodeString(str: string) {
+    const textArea = document.createElement("textarea");
+    textArea.innerHTML = str;
+    return textArea.value;
+  }
+  function handleSubmit(event: FormEvent<HTMLFormElement>): void {
+    event.preventDefault(); // Prevent the default form submission behavior
+    
+    axios
+      .get("https://opentdb.com/api.php", {
+        params: {
+          amount: amountEl.current?.value,
+          category: categoryEl.current?.value,
+        },
+      })
+      .then((res) => {
+        setFlashCards(
+          res.data.results.map((questionItem, index) => {
+            const answer = decodeString(questionItem.correct_answer);
+            const options = [
+              ...questionItem.incorrect_answers.map((a) => decodeString(a)),
+              answer,
+            ];
+  
+            return {
+              id: `${index}-${Date.now()}`,
+              question: questionItem.question,
+              answer: decodeString(questionItem.correct_answer),
+              options: options.sort(() => Math.random() - 0.5),
+            };
+          })
+        );
+      })
+      .catch((error) => {
+        console.error("An error occurred:", error);
+      });
+  }
+  
+
 
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
-  )
+    <ChakraProvider>
+      <Flex
+        direction="column"
+        alignItems="center"
+        bg="gray.200"
+        p="1rem"
+        boxShadow="0 0 5px 2px rgba(0, 0, 0, 0.3)"
+      >
+        <form
+          className="header"
+          onSubmit={handleSubmit}
+          style={{ width: "100%" }}
+        >
+          <Flex justifyContent="center" alignItems="center" mb="1rem">
+            <Box flex="1" pr="1rem">
+              <label htmlFor="category">Category</label>
+              <Select id="category" ref={categoryEl}>
+                {categories.map((category) => {
+                  return (
+                    <option value={category.id} key={category.id}>
+                      {category.name}
+                    </option>
+                  );
+                })}
+              </Select>
+            </Box>
+
+            <Box flex="1" pr="1rem">
+              <label htmlFor="amount">Number Of Questions</label>
+              <Input
+                type="number"
+                id="amount"
+                min="1"
+                step="1"
+                defaultValue={10}
+                ref={amountEl}
+              />
+            </Box>
+
+            <Box>
+              <Button colorScheme="blue" type="submit">
+                Generate
+              </Button>
+            </Box>
+          </Flex>
+        </form>
+
+        <Box className="container">
+          <FlashCardList flashCards={flashCards} />
+        </Box>
+      </Flex>
+    </ChakraProvider>
+  );
 }
 
-export default App
+export default App;

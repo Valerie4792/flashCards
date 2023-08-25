@@ -24,5 +24,7 @@ Questions's per category will need to use Number Input from Chakra
 Answers will need form control checkbox group
 will use slide fade transition to reveal answer, found under Transition from Chakra
 
-
+Would like to add a carousel
+See link below:
+https://codesandbox.io/s/chakra-carousel-dd8vn?file=/src/index.js
 

@@ -10,9 +10,15 @@ import {
 import FlashCardList from "./Components/FlashCardList";
 import axios from "axios";
 
+interface Category {
+  id: string;
+  name: string;
+  
+}
+
 function App() {
   const [flashCards, setFlashCards] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const categoryEl = useRef<HTMLSelectElement | null>(null);
   const amountEl = useRef<HTMLInputElement | null>(null);
@@ -34,7 +40,7 @@ function App() {
       })
       .then((res) => {
         setFlashCards(
-          res.data.results.map((questionItem, index) => {
+          res.data.results.map((questionItem: { correct_answer: string; incorrect_answers: any[]; question: string; }, index: number) => {
             const answer = decodeString(questionItem.correct_answer);
             const options = [
               ...questionItem.incorrect_answers.map((a) => decodeString(a)),
@@ -62,7 +68,7 @@ function App() {
       <Flex
         direction="column"
         alignItems="center"
-        bg="gray.200"
+        bg="purple.400"
         p="1rem"
         boxShadow="0 0 5px 2px rgba(0, 0, 0, 0.3)"
       >
@@ -98,7 +104,7 @@ function App() {
             </Box>
 
             <Box>
-              <Button colorScheme="blue" type="submit">
+              <Button colorScheme={'cyan'} type="submit">
                 Generate
               </Button>
             </Box>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Box } from "@chakra-ui/react";
 
-interface FlashCardProps {
+export interface FlashCardProps {
   flashCard: {
     id: string;
     question: string;
@@ -40,7 +40,7 @@ const FlashCard= ({ flashCard }: FlashCardProps) => {
       className={`card ${flip ? "flip" : ""}`}
       height={height}
       onClick={() => setFlip(!flip)}
-      bg="white"
+      bg={"purple.300"}
       borderRadius=".25rem"
       boxShadow="0 0 5px 2px rgba(0, 0, 0, 0.3)"
       cursor="pointer"
